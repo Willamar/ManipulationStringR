@@ -117,3 +117,107 @@ total_as <- number_as + number_As
 # girl_names with more than 4 a's
 girl_names[total_as > 4]
 
+
+# Some date data
+date_ranges <- c("23.01.2017 - 29.01.2017", "30.01.2017 - 06.02.2017")
+
+# Split dates using " - "
+split_dates <- str_split(date_ranges, fixed(" - "))
+split_dates
+
+# Some date data
+date_ranges <- c("23.01.2017 - 29.01.2017", "30.01.2017 - 06.02.2017")
+
+# Split dates with n and simplify specified
+split_dates_n <- str_split(date_ranges, fixed(" - "), n = 2, simplif=TRUE)
+split_dates_n
+
+# From previous step
+date_ranges <- c("23.01.2017 - 29.01.2017", "30.01.2017 - 06.02.2017")
+split_dates_n <- str_split(date_ranges, fixed(" - "), n = 2, simplify = TRUE)
+
+# Subset split_dates_n into start_dates and end_dates
+start_dates <- split_dates_n[, 1]
+
+# Split start_dates into day, month and year pieces
+str_split(start_dates, fixed("."), n=3, simplify=TRUE)
+
+both_names <- c("Box, George", "Cox, David")
+
+# Split both_names into first_names and last_names
+both_names_split <- str_split(both_names, fixed(", "), n=2, simplify=TRUE)
+
+# Get first names
+first_names <- both_names_split[,2]
+
+# Get last names
+last_names <- both_names_split[,1]
+
+lines <- c( "The table was a large one, but the three were all crowded together at one corner of it:",                                  
+                "\"No room! No room!\" they cried out when they saw Alice coming.",                                                         
+            "\"There's plenty of room!\" said Alice indignantly, and she sat down in a large arm-chair at one end of the table.")
+
+
+# Split lines into words
+words <- str_split(lines, fixed(" "))
+
+# Number of words per line
+lapply(words, length)
+
+# Number of characters in each word
+word_lengths <- lapply(words, str_length)
+
+# Average word length per line
+lapply(word_lengths, mean)
+
+
+# Some IDs
+ids <- c("ID#: 192", "ID#: 118", "ID#: 001")
+
+# Replace "ID#: " with ""
+id_nums <- str_replace_all(ids, "ID#: ", "")
+
+# Turn id_nums into numbers
+id_ints <- as.numeric(id_nums)
+
+# Some (fake) phone numbers
+phone_numbers <- c("510-555-0123", "541-555-0167")
+
+# Use str_replace() to replace "-" with " "
+str_replace(phone_numbers, fixed("-"), " ")
+
+# Use str_replace_all() to replace "-" with " "
+str_replace_all(phone_numbers, fixed("-"), " ")
+
+# Turn phone numbers into the format xxx.xxx.xxxx
+str_replace_all(phone_numbers, fixed("-"), ".")
+str_replace_all(phone_numbers, "[0-9]", "x")
+
+
+# Define some full names
+names <- c("Diana Prince", "Clark Kent")
+
+# Split into first and last names
+names_split <- str_split(names, " ", n=2, simplify=TRUE)
+
+# Extract the first letter in the first name
+abb_first <- str_sub(names_split[,1], 1, 1)
+
+# Combine the first letter ". " and last name
+str_c(abb_first, ". ", names_split[,2])
+
+
+# Use all names in babynames_2014
+all_names <- babynames_2014$name
+
+# Get the last two letters of all_names
+last_two_letters <- str_sub(all_names, -2, -1)
+
+# Does the name end in "ee"?
+ends_in_ee <- str_detect(last_two_letters, "ee")
+
+# Extract rows and "sex" column
+sex <- babynames_2014$sex[ends_in_ee]
+
+# Display result as a table
+table(sex)
