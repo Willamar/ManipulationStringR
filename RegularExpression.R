@@ -30,3 +30,214 @@ str_view(x, pattern = ANY_CHAR %R% ANY_CHAR)
 
 # Match a string with exactly three characters
 str_view(x, pattern = START %R% ANY_CHAR %R% ANY_CHAR %R% ANY_CHAR %R% END)
+
+library(babynames)
+babynames_2014 <- filter(babynames, year == 2014)
+boy_names <- filter(babynames_2014, sex == "M")$name
+girl_names <- filter(babynames_2014, sex == "F")$name
+
+pattern <- "q" %R% ANY_CHAR
+
+# Find names that have the pattern
+names_with_q <- str_subset(boy_names, pattern)
+
+# How many names were there?
+length(names_with_q)
+
+# Find part of name that matches pattern
+part_with_q <- str_extract(boy_names, pattern)
+
+# Get a table of counts
+table(part_with_q)
+
+# Did any names have the pattern more than once?
+count_of_q <- str_count(boy_names, pattern)
+
+# Get a table of counts
+table(count_of_q)
+
+# Which babies got these names?
+with_q <- str_detect(boy_names, pattern)
+
+# What fraction of babies got these names?
+mean(with_q)
+
+# Match Jeffrey or Geoffrey
+whole_names <- or("Jeffrey", "Geoffrey")
+str_view(boy_names, pattern = whole_names, match = TRUE)
+
+
+# Match Jeffrey or Geoffrey, another way
+common_ending <- or("Je", "Geo") %R% "ffrey"
+str_view(boy_names, pattern = common_ending, match = TRUE)
+
+
+# Match with alternate endings
+by_parts <- or("Je", "Geo") %R% "ff" %R% or("ry", "ery", "rey", "erey")
+str_view(boy_names, pattern = by_parts, match = TRUE)
+
+# Match names that start with Cath or Kath
+ckath <- START %R% or("C", "K") %R% "ath"
+str_view(girl_names, pattern = ckath, match = TRUE)
+
+x <- c("grey sky", "gray elephant")
+
+# Create character class containing vowels
+vowels <- char_class("aeiouAEIOU")
+
+# Print vowels
+vowels
+
+# See vowels in x with str_view()
+str_view(x, pattern = vowels)
+
+# See vowels in x with str_view_all()
+str_view_all(x, vowels)
+
+
+# Number of vowels in boy_names
+num_vowels <- str_count(boy_names, vowels)
+
+# Proportion of vowels in boy_names
+name_length <- str_length(boy_names)
+
+# Calc mean number of vowels
+mean(num_vowels)
+
+# Calc mean fraction of vowels per name
+mean(num_vowels / name_length)
+
+# Vowels from last exercise
+vowels <- char_class("aeiouAEIOU")
+
+# See names with only vowels
+str_view(boy_names, 
+         pattern = exactly(one_or_more(vowels)), 
+         match = TRUE)
+
+# Use `negated_char_class()` for everything but vowels
+not_vowels <- negated_char_class("aeiouAEIOU")
+
+# See names with no vowels
+str_view(boy_names, 
+         pattern = exactly(one_or_more(not_vowels)), 
+         match = TRUE)
+
+contact <- c( "Call me at 555-555-0191",                 
+            "123 Main St",                             
+            "(555) 555 0191",                          
+            "Phone: 555.555.0191 Mobile: 555.555.0192")
+
+# Create a three digit pattern
+three_digits <- DGT %R% DGT %R% DGT
+
+# Test it
+str_view_all(contact, pattern = three_digits)
+
+three_digits
+
+
+# Create a separator pattern
+separator <- char_class("-.() ")
+
+# Test it
+str_view_all(contact, pattern = separator)
+
+# Use these components
+three_digits <- DGT %R% DGT %R% DGT
+four_digits <- three_digits %R% DGT
+separator <- char_class("-.() ")
+
+# Create phone pattern
+phone_pattern <- zero_or_more(OPEN_PAREN) %R%
+  three_digits %R%
+  zero_or_more(separator) %R%
+  three_digits %R% 
+  zero_or_more(separator) %R%
+  four_digits
+
+# Test it           
+str_view_all(contact, pattern = phone_pattern)
+
+# Use this pattern
+three_digits <- DGT %R% DGT %R% DGT
+four_digits <- three_digits %R% DGT
+separator <- char_class("-.() ")
+phone_pattern <- optional(OPEN_PAREN) %R% 
+  three_digits %R% 
+  zero_or_more(separator) %R% 
+  three_digits %R% 
+  zero_or_more(separator) %R%
+  four_digits
+
+# Extract phone numbers 
+str_extract(contact, phone_pattern)
+
+# Extract ALL phone numbers
+str_extract_all(contact, phone_pattern)
+narratives <- c( "19YOM-SHOULDER STRAIN-WAS TACKLED WHILE PLAYING FOOTBALL W/ FRIENDS ",               
+                 "31 YOF FELL FROM TOILET HITITNG HEAD SUSTAINING A CHI ",                     
+                 "ANKLE STR. 82 YOM STRAINED ANKLE GETTING OUT OF BED ",                    
+                 "TRIPPED OVER CAT AND LANDED ON HARDWOOD FLOOR. LACERATION ELBOW, LEFT. 33 YOF*",           
+                 "10YOM CUT THUMB ON METAL TRASH CAN DX AVULSION OF SKIN OF THUMB ",          
+                 "53 YO F TRIPPED ON CARPET AT HOME. DX HIP CONTUSION ",         
+                 "13 MOF TRYING TO STAND UP HOLDING ONTO BED FELL AND HIT FOREHEAD ON RADIATOR DX LACERATION",
+                 "14YR M PLAYING FOOTBALL; DX KNEE SPRAIN ",
+                 "55YOM RIDER OF A BICYCLE AND FELL OFF SUSTAINED A CONTUSION TO KNEE ",
+                  "5 YOM ROLLING ON FLOOR DOING A SOMERSAULT AND SUSTAINED A CERVICAL STRA IN")
+
+
+# Pattern to match one or two digits
+age <- DGT %R% optional(DGT)
+
+# Test it
+str_view(narratives, pattern = age)
+
+# Use this pattern
+age <- DGT %R% optional(DGT)
+
+# Pattern to match units 
+unit <- optional(" ") %R% char_class("YO", "YR", "MO")
+
+# Test pattern with age then units
+str_view(narratives, pattern = age %R% unit)
+
+# Use these patterns
+age <- DGT %R% optional(DGT)
+unit <- optional(SPC) %R% or("YO", "YR", "MO")
+
+# Pattern to match gender
+gender <- optional(SPC) %R% or ("M", "F")
+
+# Test pattern with age then units then gender
+str_view(narratives, pattern = age %R% unit %R% gender)
+
+# Use these patterns
+age <- DGT %R% optional(DGT)
+unit <- optional(SPC) %R% or("YO", "YR", "MO")
+gender <- optional(SPC) %R% or("M", "F")
+
+# Extract age, unit, gender
+str_extract(narratives, age %R% unit %R% gender)
+age_gender <- str_extract(narratives, age %R% unit %R% gender)
+
+# Extract age and make numeric
+as.numeric(str_extract(narratives, age))
+
+# Replace age and units with ""
+genders <- str_remove(age_gender, age %R% unit)
+
+# Replace extra spaces
+str_remove(genders, " ")
+
+# Numeric ages, from previous step
+ages_numeric <- as.numeric(str_extract(age_gender, age))
+
+# Extract units 
+time_units <- str_extract(age_gender, unit)
+
+# Extract first word character
+time_units_clean <- str_extract(time_units, WRD)
+
+# Turn ages in months to years
+ifelse(time_units_clean == "Y", ages_numeric, ages_numeric / 12)
